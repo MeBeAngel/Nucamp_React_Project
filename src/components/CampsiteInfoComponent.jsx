@@ -75,7 +75,7 @@ class CommentForm extends Component {
             isModalOpen: false,
             ratingVal: 1,
             authorVal: '',
-            textVal: '',
+            textVal: ''
         }
     }
 
@@ -94,6 +94,11 @@ class CommentForm extends Component {
         console.log(`Rating: ${this.state.ratingVal}, Author: ${this.state.authorVal}, Text: ${this.state.textVal}`);
         alert(`Rating: ${this.state.ratingVal}, Author: ${this.state.authorVal}, Text: ${this.state.textVal}`)
         this.toggleModal();
+        this.setState({
+            ratingVal: 1,
+            authorVal: '',
+            textVal: ''
+        })
     }
 
     render() {
