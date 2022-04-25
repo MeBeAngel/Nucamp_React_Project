@@ -24,13 +24,14 @@ function RenderCampsite({ campsite }) {
 }
 
 //
-function RenderComments({ comments }) {
+function RenderComments({ comments, addComment, campsiteId }) {
+
     if (comments) {
         return (
             <div className="col-md-5 m-1">
                 <h4>Comments</h4>
                 {comments.map(comment => <p>{`${comment.text} \n --${comment.author}, ${new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit' }).format(new Date(Date.parse(comment.date)))}`}</p>)}
-                <CommentForm />
+                <CommentForm campsiteId={campsiteId} addComment={addComment} />
             </div>
         )
     }
@@ -39,8 +40,9 @@ function RenderComments({ comments }) {
     }
 }
 
-// Render
+//
 function CampsiteInfo(props) {
+
     if (props.campsite) {
         return <>
             <div className="container">
@@ -56,7 +58,11 @@ function CampsiteInfo(props) {
                 </div>
                 <div className="row">
                     <RenderCampsite campsite={props.campsite} />
-                    <RenderComments comments={props.comments} />
+                    <RenderComments
+                        comments={props.comments}
+                        addComment={props.addComment}
+                        campsiteId={props.campsite.id}
+                    />
                 </div>
             </div>
         </>
@@ -73,9 +79,11 @@ class CommentForm extends Component {
 
         this.state = {
             isModalOpen: false,
-            ratingVal: 1,
-            authorVal: '',
-            textVal: ''
+            value: {
+                rating: 1,
+                author: '',
+                text: ''
+            }
         }
     }
 
@@ -87,17 +95,23 @@ class CommentForm extends Component {
     }
 
     handleChange = (e) => {
-        this.setState({ [`${e.target.name}Val`]: e.target.value })
+        this.setState({
+            value: { [e.target.name]: e.target.value }
+        })
     }
 
-    handleCommentSubmit = () => {
-        console.log(`Rating: ${this.state.ratingVal}, Author: ${this.state.authorVal}, Text: ${this.state.textVal}`);
-        alert(`Rating: ${this.state.ratingVal}, Author: ${this.state.authorVal}, Text: ${this.state.textVal}`)
+
+
+    handleSubmit = (values) => {
         this.toggleModal();
+        console.log("Current state is: " + JSON.stringify(values));
+        alert("Current state is: " + JSON.stringify(values));
         this.setState({
-            ratingVal: 1,
-            authorVal: '',
-            textVal: ''
+            value: {
+                rating: 1,
+                author: '',
+                text: ''
+            }
         })
     }
 
@@ -109,7 +123,7 @@ class CommentForm extends Component {
                 <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
                     <ModalBody>
                         <ModalHeader className="mb-3" toggle={this.toggleModal}>Submit Comment</ModalHeader>
-                        <LocalForm>
+                        <LocalForm onSubmit={values => this.handleSubmit(values)}>
                             <div className="form-group">
                                 <Label htmlFor="rating">Rating</Label>
                                 <Control.select
@@ -118,7 +132,7 @@ class CommentForm extends Component {
                                     id="rating"
                                     name="rating"
                                     onChange={this.handleChange}
-                                    value={this.state.ratingVal} >
+                                    value={this.state.value.rating} >
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
@@ -135,7 +149,7 @@ class CommentForm extends Component {
                                     name="author"
                                     placeholder="Your Name"
                                     onChange={this.handleChange}
-                                    value={this.state.authorVal}
+                                    value={this.state.value.author}
                                     validators={{
                                         minLength: minLength(2),
                                         maxLength: maxLength(15)
@@ -161,9 +175,9 @@ class CommentForm extends Component {
                                     id="text"
                                     name="text"
                                     onChange={this.handleChange}
-                                    value={this.state.textVal} ></Control.textarea>
+                                    value={this.state.value.text} ></Control.textarea>
                             </div>
-                            <Button className="bg-primary border-0" onClick={this.handleCommentSubmit}>Submit</Button>
+                            <Button type="submit" className="bg-primary border-0">Submit</Button>
                         </LocalForm>
                     </ModalBody>
                 </Modal>
