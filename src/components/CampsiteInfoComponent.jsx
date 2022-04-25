@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Control, LocalForm, Errors } from 'react-redux-form';
 import { Card, CardImg, CardText, CardBody, Breadcrumb, BreadcrumbItem, Button, Modal, ModalHeader, ModalBody, Label } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { Loading } from './LoadingComponent';
 
 const maxLength = len => val => !val || (val.length <= len);
 const minLength = len => val => val && (val.length >= len);
@@ -42,6 +43,26 @@ function RenderComments({ comments, addComment, campsiteId }) {
 
 //
 function CampsiteInfo(props) {
+    if (props.isLoading) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <Loading />
+                </div>
+            </div>
+        );
+    }
+    if (props.errMess) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <div className="col">
+                        <h4>{props.errMess}</h4>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (props.campsite) {
         return <>
@@ -101,18 +122,9 @@ class CommentForm extends Component {
     }
 
 
-
-    handleSubmit = (values) => {
+    handleSubmit(values) {
         this.toggleModal();
-        console.log("Current state is: " + JSON.stringify(values));
-        alert("Current state is: " + JSON.stringify(values));
-        this.setState({
-            value: {
-                rating: 1,
-                author: '',
-                text: ''
-            }
-        })
+        this.props.addComment(this.props.campsiteId, values.rating, values.author, values.text);
     }
 
     render() {
@@ -181,6 +193,7 @@ class CommentForm extends Component {
                         </LocalForm>
                     </ModalBody>
                 </Modal>
+                <RenderComments />
             </>
         )
     }
